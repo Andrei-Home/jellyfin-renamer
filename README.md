@@ -8,8 +8,8 @@ Expected layout:
 
 ```text
 Movies/
-  Little Asians Vol. 9 (2023)/
-    Little Asians Vol. 9 (2023).mp4
+  In the Grey (2026)/
+    In the Grey (2023).mp4
 ```
 
 The tool will rename local files and folders only. It will not modify Jellyfin metadata or trigger a library refresh automatically.
