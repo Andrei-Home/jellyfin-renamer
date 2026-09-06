@@ -2,7 +2,7 @@
 
 A command-line tool for safely renaming local Jellyfin movie folders and files to match the title and production year stored in Jellyfin.
 
-It only renames files and folders on disk. It does not change Jellyfin metadata or trigger a library refresh.
+It only renames files and folders on disk. It does not change Jellyfin metadata. A library refresh can be explicitly requested after successful renames.
 
 ## Features
 
@@ -80,6 +80,7 @@ jellyfin-renamer \
 - `--server-prefix`: Jellyfin path prefix that matches the server-side media path
 - `--local-prefix`: Local filesystem prefix that matches the same media on disk
 - `--dry-run`: Show planned renames without making file system changes
+- `--refresh-library`: Trigger a Jellyfin library refresh after successful renames
 - `--timeout`: HTTP timeout in seconds (default: `30.0`)
 - `--insecure`: Skip TLS certificate verification for self-signed certificates
 
@@ -113,6 +114,8 @@ jellyfin-renamer \
   --server-prefix "/media" \
   --local-prefix "/home/user/Movies"
 ```
+
+Add `--refresh-library` to request a Jellyfin library refresh after the renames complete. The refresh is not sent during a dry run or when a rename fails.
 
 ### 3. Use a self-signed local Jellyfin certificate
 

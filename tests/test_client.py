@@ -18,6 +18,8 @@ class FakeResponse:
         return None
 
     def read(self) -> bytes:
+        if isinstance(self.payload, bytes):
+            return self.payload
         return json.dumps(self.payload).encode()
 
 
@@ -79,3 +81,18 @@ def test_fetches_paginated_movies() -> None:
 
     assert [movie.id for movie in movies] == ["a", "b"]
     assert parse_qs(urlparse(urls[1]).query)["StartIndex"] == ["1"]
+
+
+def test_refreshes_library() -> None:
+    requests: list[object] = []
+
+    def opener(request: object, timeout: float, context: object) -> FakeResponse:
+        requests.append(request)
+        return FakeResponse(b"")
+
+    client = JellyfinClient("https://jellyfin.example", "secret", opener=opener)
+
+    client.refresh_library()
+
+    assert requests[0].full_url == "https://jellyfin.example/Library/Refresh"
+    assert requests[0].get_method() == "POST"

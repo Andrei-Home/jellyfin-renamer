@@ -29,13 +29,14 @@ class JellyfinClient:
     opener: Callable[..., object] = urlopen
     page_size: int = 100
 
-    def _request_json(self, path: str, params: dict[str, str | int]) -> object:
+    def _request(self, path: str, params: dict[str, str | int], method: str = "GET") -> bytes:
         query = urlencode(params)
         url = f"{self.base_url.rstrip('/')}/{path.lstrip('/')}"
         if query:
             url = f"{url}?{query}"
         request = Request(
             url,
+            method=method,
             headers={
                 "Accept": "application/json",
                 "X-Emby-Token": self.api_key,
@@ -44,17 +45,22 @@ class JellyfinClient:
         )
         try:
             with self.opener(request, timeout=self.timeout, context=self._ssl_context()) as response:
-                body = response.read()
+                return response.read()
         except HTTPError as error:
             if error.code in (401, 403):
                 raise JellyfinResponseError("Jellyfin rejected the API key") from error
             raise JellyfinResponseError(f"Jellyfin returned HTTP {error.code}") from error
         except (URLError, OSError) as error:
             raise JellyfinConnectionError(f"Could not connect to Jellyfin: {error}") from error
+
+    def _request_json(self, path: str, params: dict[str, str | int]) -> object:
         try:
-            return json.loads(body)
+            return json.loads(self._request(path, params))
         except (TypeError, json.JSONDecodeError) as error:
             raise JellyfinConnectionError("Jellyfin returned invalid JSON") from error
+
+    def refresh_library(self) -> None:
+        self._request("Library/Refresh", {}, method="POST")
 
     def _ssl_context(self):
         if self.verify_tls:
