@@ -15,6 +15,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--server-prefix", required=True, help="Jellyfin path prefix")
     parser.add_argument("--local-prefix", required=True, help="Local path prefix")
     parser.add_argument("--dry-run", action="store_true", help="Report changes without modifying files")
+    parser.add_argument(
+        "--refresh-library",
+        action="store_true",
+        help="Refresh the Jellyfin library after successful renames",
+    )
     parser.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
     parser.add_argument("--insecure", action="store_true", help="Disable TLS certificate verification")
     return parser
@@ -40,6 +45,9 @@ def main(argv: list[str] | None = None) -> int:
                 f"{result.status}: {result.operation.source_file} -> "
                 f"{result.operation.destination_file} ({result.message})"
             )
+        if args.refresh_library and not args.dry_run and not had_failure:
+            client.refresh_library()
+            print(f"refreshed: {library.name}")
     except (JellyfinError, OSError, ValueError) as error:
         print(f"error: {error}")
         return 1
