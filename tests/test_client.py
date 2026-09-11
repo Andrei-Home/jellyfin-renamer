@@ -98,6 +98,34 @@ def test_fetches_paginated_movies() -> None:
     assert parse_qs(urlparse(urls[1]).query)["StartIndex"] == ["1"]
 
 
+def test_ignores_collection_items() -> None:
+    client = JellyfinClient(
+        "https://jellyfin.example",
+        "secret",
+        opener=fake_opener(
+            [
+                {
+                    "Items": [
+                        {
+                            "Id": "collection",
+                            "Type": "BoxSet",
+                            "Name": "18 Carat [boxset]",
+                            "Path": "/config/data/collections/18 Carat [boxset]",
+                        },
+                        {"Id": "movie", "Name": "Movie", "Path": "/media/porn/Movie.mkv"},
+                    ],
+                    "TotalRecordCount": 2,
+                }
+            ],
+            [],
+        ),
+    )
+
+    movies = list(client.movies("library"))
+
+    assert [movie.id for movie in movies] == ["movie"]
+
+
 def test_refreshes_library() -> None:
     requests: list[object] = []
 
