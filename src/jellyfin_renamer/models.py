@@ -16,6 +16,7 @@ class JellyfinMovie:
     name: str
     production_year: int | None
     server_path: str
+    item_type: str | None = None
 
 
 @dataclass(frozen=True)

@@ -37,6 +37,8 @@ def main(argv: list[str] | None = None) -> int:
         library = client.select_movie_library(args.library)
         had_failure = False
         for movie in client.movies(library.id):
+            if movie.item_type == "BoxSet":
+                continue
             local_path = map_server_path(movie.server_path, args.server_prefix, args.local_prefix)
             operation = plan_operation(local_path, movie.name, movie.production_year, args.root)
             result = execute_operation(operation, dry_run=args.dry_run)

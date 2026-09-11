@@ -98,7 +98,7 @@ def test_fetches_paginated_movies() -> None:
     assert parse_qs(urlparse(urls[1]).query)["StartIndex"] == ["1"]
 
 
-def test_ignores_collection_items() -> None:
+def test_preserves_item_type_for_collection_members() -> None:
     client = JellyfinClient(
         "https://jellyfin.example",
         "secret",
@@ -106,13 +106,8 @@ def test_ignores_collection_items() -> None:
             [
                 {
                     "Items": [
-                        {
-                            "Id": "collection",
-                            "Type": "BoxSet",
-                            "Name": "18 Carat [boxset]",
-                            "Path": "/config/data/collections/18 Carat [boxset]",
-                        },
-                        {"Id": "movie", "Name": "Movie", "Path": "/media/porn/Movie.mkv"},
+                        {"Id": "collection", "Type": "BoxSet", "Name": "Collection", "Path": "/config/data/collections/Collection"},
+                        {"Id": "movie", "Type": "Movie", "Name": "Movie", "Path": "/media/porn/Movie.mkv"},
                     ],
                     "TotalRecordCount": 2,
                 }
@@ -123,7 +118,7 @@ def test_ignores_collection_items() -> None:
 
     movies = list(client.movies("library"))
 
-    assert [movie.id for movie in movies] == ["movie"]
+    assert [(movie.id, movie.item_type) for movie in movies] == [("collection", "BoxSet"), ("movie", "Movie")]
 
 
 def test_refreshes_library() -> None:
