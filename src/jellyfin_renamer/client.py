@@ -115,6 +115,8 @@ class JellyfinClient:
                 raise JellyfinResponseError("Jellyfin movie response was invalid")
             items = payload["Items"]
             for item in items:
+                if isinstance(item, dict) and item.get("Type") == "BoxSet":
+                    continue
                 if not isinstance(item, dict) or not item.get("Id") or not item.get("Name") or not item.get("Path"):
                     raise JellyfinResponseError("Jellyfin movie response contained an invalid item")
                 yield JellyfinMovie(
