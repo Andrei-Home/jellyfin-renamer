@@ -43,10 +43,11 @@ def main(argv: list[str] | None = None) -> int:
             operation = plan_operation(local_path, movie.name, movie.production_year, args.root)
             result = execute_operation(operation, dry_run=args.dry_run)
             had_failure = had_failure or result.status == "failed"
-            print(
-                f"{result.status}: {result.operation.source_file} -> "
-                f"{result.operation.destination_file} ({result.message})"
-            )
+            if result.status in ("planned", "renamed"):
+                print(
+                    f"{result.status}: {result.operation.source_file} -> "
+                    f"{result.operation.destination_file} ({result.message})"
+                )
         if args.refresh_library and not args.dry_run and not had_failure:
             client.refresh_library()
             print(f"refreshed: {library.name}")
