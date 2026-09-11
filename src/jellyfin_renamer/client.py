@@ -39,7 +39,7 @@ class JellyfinClient:
             method=method,
             headers={
                 "Accept": "application/json",
-                "X-Emby-Token": self.api_key,
+                "Authorization": f'MediaBrowser Token="{self.api_key}"',
                 "User-Agent": "jellyfin-renamer/0.1",
             },
         )

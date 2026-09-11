@@ -49,6 +49,21 @@ def test_selects_exact_movie_library() -> None:
     assert "Library/VirtualFolders" in urls[0]
 
 
+def test_uses_modern_jellyfin_authorization_header() -> None:
+    requests: list[object] = []
+
+    def opener(request: object, timeout: float, context: object) -> FakeResponse:
+        requests.append(request)
+        return FakeResponse([])
+
+    JellyfinClient("https://jellyfin.example", "secret", opener=opener).libraries()
+
+    request = requests[0]
+    assert request.get_header("Authorization") == 'MediaBrowser Token="secret"'
+    assert request.get_header("X-Emby-Token") is None
+    assert "secret" not in request.full_url
+
+
 def test_rejects_non_movie_library() -> None:
     client = JellyfinClient(
         "https://jellyfin.example",
